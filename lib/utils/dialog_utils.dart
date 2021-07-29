@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project_template/components/loading_indicator.dart';
-import 'package:flutter_project_template/i18n/i18n.dart';
+import 'package:swspider/components/loading_indicator.dart';
+import 'package:swspider/i18n/i18n.dart';
 
 class DialogUtils {
   /// 显示提示框：提示文本+确定按钮。

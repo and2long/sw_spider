@@ -4,16 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_project_template/network/http.dart';
-import 'package:flutter_project_template/utils/common_util.dart';
+import 'package:swspider/network/http.dart';
+import 'package:swspider/utils/common_util.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_project_template/i18n/i18n.dart';
-import 'package:flutter_project_template/init/provider.dart';
-import 'package:flutter_project_template/init/route_map.dart';
-import 'package:flutter_project_template/init/theme.dart';
-import 'package:flutter_project_template/pages/home.dart';
-import 'package:flutter_project_template/utils/log_utils.dart';
-import 'package:flutter_project_template/utils/sp_utils.dart';
+import 'package:swspider/i18n/i18n.dart';
+import 'package:swspider/init/provider.dart';
+import 'package:swspider/init/route_map.dart';
+import 'package:swspider/init/theme.dart';
+import 'package:swspider/pages/home.dart';
+import 'package:swspider/utils/log_utils.dart';
+import 'package:swspider/utils/sp_utils.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

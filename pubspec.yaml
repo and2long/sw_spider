@@ -1,4 +1,4 @@
-name: flutter_project_template
+name: swspider
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -31,6 +31,13 @@ dependencies:
   shared_preferences: ^2.0.3
   fluttertoast: ^8.0.7
   dio: ^4.0.0
+  xpath_parse:
+    git:
+      url: https://github.com/and2long/xpath.git
+      ref: master
+  excel: ^2.0.0-null-safety-3
+  path_provider: ^2.0.2
+  permission_handler: ^8.1.4+2
 
 dev_dependencies:
   flutter_test:

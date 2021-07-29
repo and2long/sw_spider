@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_project_template/utils/log_utils.dart';
+import 'package:swspider/utils/log_utils.dart';
 
 /// 网络请求拦截器
 class CustomInterceptors extends Interceptor {
   String _tag = 'XHttp';
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     String data = "";
@@ -20,11 +21,14 @@ class CustomInterceptors extends Interceptor {
         data = "\nbody:${json.encode(options.data)}";
       }
     }
+    String headers = "";
+    if (options.headers.isNotEmpty) {
+      headers = '\nheaders:${json.encode(options.headers)}';
+    }
     if (options.queryParameters.isNotEmpty) {
       data += '\nqueryParameters: ${json.encode(options.queryParameters)}';
     }
-    Log.d(_tag,
-        "--> ${options.method} ${options.path}\nheaders:${json.encode(options.headers)}$data");
+    Log.d(_tag, "--> ${options.method} ${options.path}$headers$data");
     return super.onRequest(options, handler);
   }
 

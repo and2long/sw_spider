@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_project_template/i18n/i18n.dart';
-import 'package:flutter_project_template/utils/sp_utils.dart';
+import 'package:swspider/i18n/i18n.dart';
+import 'package:swspider/utils/sp_utils.dart';
 
 /// 状态管理
 class Store {

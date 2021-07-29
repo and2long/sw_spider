@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_project_template/network/interceptors.dart';
+import 'package:swspider/network/interceptors.dart';
 
 class XHttp {
   XHttp._internal();
@@ -11,6 +11,7 @@ class XHttp {
   static init() {
     //添加拦截器
     instance.interceptors.add(CustomInterceptors());
+    instance.options.responseType= ResponseType.plain;
   }
 }
 
