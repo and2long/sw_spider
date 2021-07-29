@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:swspider/network/http.dart';
 import 'package:swspider/utils/toast_util.dart';
 import 'package:xpath_parse/xpath_selector.dart';
@@ -34,16 +35,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<String> _items = [];
 
   @override
-  void initState() {
-    super.initState();
-    _initPath();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('水文信息采集'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (_savePath != null) {
+                if (File(_savePath!).existsSync()) {
+                  Share.shareFiles([_savePath!], text: '水情信息数据');
+                } else {
+                  ToastUtil.show('文件不存在，请先进行数据采集。');
+                }
+              }
+            },
+            icon: Icon(Icons.share),
+            tooltip: '转发文件',
+          )
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
