@@ -35,6 +35,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<String> _items = [];
 
   @override
+  void initState() {
+    super.initState();
+    _initPath();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -60,13 +66,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Container(
+            child: Text(
+              '文件存储路径：\n$_savePath',
+            ),
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
           Expanded(
             child: _items.isEmpty
                 ? Center(
                     child: Text('点击开始按钮，进行数据采集。'),
                   )
                 : ListView.builder(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemBuilder: (c, i) => Text(_items[i]),
                     itemCount: _items.length,
                   ),
@@ -97,7 +109,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// 1. 获取首页中的模块地址
   /// 2. 并发请求多个模块中的所有页数据。
   void _start() async {
-    await _initPath();
     if (kReleaseMode && _savePath == null) {
       ToastUtil.show('存储路径初始化失败，不支持该平台。');
       return;
@@ -124,7 +135,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       setState(() {
         _running = false;
         _items.add('数据采集完成。');
-        _items.add('文件存储路径：\n$_savePath');
       });
       ToastUtil.show('数据采集完成。');
     } catch (e) {
@@ -137,15 +147,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  void _saveExcel() {
+  void _saveExcel() async {
     excel.delete('Sheet1');
     var fileBytes = excel.save();
     if (fileBytes != null && _savePath != null) {
+      if (File(_savePath!).existsSync()) {
+        await File(_savePath!).delete();
+      }
       File(_savePath!)
         ..createSync(recursive: true)
         ..writeAsBytesSync(fileBytes);
       print('save success');
-      print(_savePath);
     }
   }
 
@@ -268,8 +280,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       directory = await getDownloadsDirectory();
     }
     _savePath = p.join(directory?.path ?? '', fileName);
-    if (File(_savePath!).existsSync()) {
-      await File(_savePath!).delete();
-    }
+    setState(() {});
   }
 }
