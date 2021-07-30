@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -38,15 +39,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         title: Text('水文信息采集'),
-        actions: _savePath == null || !Platform.isAndroid
-            ? null
-            : [
+        actions: !_running &&
+                _savePath != null &&
+                File(_savePath!).existsSync() &&
+                Platform.isAndroid
+            ? [
+                IconButton(
+                  onPressed: () => OpenFile.open(_savePath),
+                  icon: Icon(Icons.open_in_new),
+                  tooltip: '打开文件',
+                ),
                 IconButton(
                   onPressed: _shareFile,
                   icon: Icon(Icons.share),
                   tooltip: '转发文件',
                 )
-              ],
+              ]
+            : null,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
