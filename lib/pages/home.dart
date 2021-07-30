@@ -4,12 +4,12 @@ import 'package:dio/dio.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:swspider/network/http.dart';
 import 'package:swspider/utils/toast_util.dart';
 import 'package:xpath_parse/xpath_selector.dart';
-import 'package:path/path.dart' as p;
 
 const HOME_URL = 'http://www.shxsw.com.cn';
 
@@ -108,27 +108,36 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
         _items.add('解析总页数：');
       });
-      // 获取各模块数据总页数
-      List data = await Future.wait(
-          List.generate(urls.length, (index) => _getAllTableData(urls[index])));
-      // 存入表格
-      data.forEach((element) async {
-        await _save2Excel(element.first, element.last);
+      // 获取各模块数据
+      await Future.wait(
+          List.generate(urls.length, (index) => _getModelData(urls[index])));
+      _saveExcel();
+      setState(() {
+        _running = false;
+        _items.add('数据采集完成。');
+        _items.add('文件存储路径：\n$_savePath');
       });
+      ToastUtil.show('数据采集完成。');
     } catch (e) {
-      print(e);
+      print('main process error:$e');
       setState(() {
         _running = false;
         _items.add('数据采集失败。');
       });
+      ToastUtil.show('出现异常，数据采集失败。');
     }
-    print('采集结束');
-    setState(() {
-      _running = false;
-      _items.add('数据采集完成。');
-      _items.add('文件存储路径：\n$_savePath');
-    });
-    ToastUtil.show('数据采集完成。');
+  }
+
+  void _saveExcel() {
+    excel.delete('Sheet1');
+    var fileBytes = excel.save();
+    if (fileBytes != null && _savePath != null) {
+      File(_savePath!)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+      print('save success');
+      print(_savePath);
+    }
   }
 
   /// 获取资源地址
@@ -169,7 +178,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return 1;
   }
 
-  Future<List> _getTablePageData(String resourceUrl, int pageIndex) async {
+  Future<List> _getTableData(String resourceUrl, int pageIndex) async {
     try {
       Response response =
           await XHttp.instance.get('$HOME_URL$resourceUrl?page=$pageIndex');
@@ -191,51 +200,51 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return [title, result];
       }
     } on DioError catch (e) {
-      print(e);
       setState(() {
         _items.add(
             'error:${e.response?.statusCode} ${e.response?.requestOptions.path.replaceAll(HOME_URL, '')}');
       });
+    } catch (e) {
+      print('_getTableData error:$e');
     }
     return [];
   }
 
-  Future<List> _getAllTableData(String resourceUrl) async {
+  Future<List> _getModelData(String resourceUrl) async {
     int count = await _getTotalPages(resourceUrl);
     setState(() {
       _items.add('$resourceUrl: $count');
     });
-    List data = await Future.wait(List.generate(
-        count, (index) => _getTablePageData(resourceUrl, index + 1)));
+    List data = await Future.wait(
+        List.generate(count, (index) => _getTableData(resourceUrl, index + 1)));
     String title = '';
     List<List> items = [];
-    for (int i = 0; i < data.length; i++) {
-      if (i == 0) {
-        title = data[i].first;
-      }
-      for (int a = 0; a < data[i].last.length; a++) {
-        if (i == 0 || a != 0) {
-          items.add(data[i].last[a]);
+    if (data.isNotEmpty) {
+      for (int i = 0; i < data.length; i++) {
+        if (i == 0) {
+          title = data[i].first;
+        }
+        if (data[i].isEmpty) {
+          print('data[$i]:${data[i]}');
+          continue;
+        }
+        for (int a = 0; a < data[i].last.length; a++) {
+          if (i == 0 || a != 0) {
+            items.add(data[i].last[a]);
+          }
         }
       }
+      await _save2Sheet(title, items);
     }
     return [title, items];
   }
 
   /// 保存在excel
   /// [ignoreFirstLineData] 是否忽略第一行数据，第一行数据是表格的头
-  Future _save2Excel(String sheetName, List<List> tableData) async {
+  Future _save2Sheet(String sheetName, List<List> tableData) async {
     Sheet sheetObject = excel[sheetName];
     for (int i = 0; i < tableData.length; i++) {
       sheetObject.appendRow(tableData[i]);
-    }
-    var fileBytes = excel.save();
-    if (fileBytes != null && _savePath != null) {
-      File(_savePath!)
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(fileBytes);
-      print('save success');
-      print(_savePath);
     }
   }
 
