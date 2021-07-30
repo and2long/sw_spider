@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:swspider/network/http.dart';
 import 'package:swspider/utils/toast_util.dart';
 import 'package:xpath_parse/xpath_selector.dart';
+import 'package:path/path.dart' as p;
 
 const HOME_URL = 'http://www.shxsw.com.cn';
 
@@ -88,6 +89,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// 2. 并发请求多个模块中的所有页数据。
   void _start() async {
     await _initPath();
+    if (_savePath == null) {
+      ToastUtil.show('存储路径初始化失败，不支持该平台。');
+      return;
+    }
     setState(() {
       _running = true;
       _items.clear();
@@ -210,31 +215,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// 保存在excel
   /// [ignoreFirstLineData] 是否忽略第一行数据，第一行数据是表格的头
   Future _save2Excel(String sheetName, List<List> tableData) async {
-    if (Platform.isAndroid) {
-      Sheet sheetObject = excel[sheetName];
-      for (int i = 0; i < tableData.length; i++) {
-        sheetObject.appendRow(tableData[i]);
-      }
-      var fileBytes = excel.save();
-      if (fileBytes != null && _savePath != null) {
-        File(_savePath!)
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(fileBytes);
-        print('save success');
-        print(_savePath);
-      }
+    Sheet sheetObject = excel[sheetName];
+    for (int i = 0; i < tableData.length; i++) {
+      sheetObject.appendRow(tableData[i]);
+    }
+    var fileBytes = excel.save();
+    if (fileBytes != null && _savePath != null) {
+      File(_savePath!)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+      print('save success');
+      print(_savePath);
     }
   }
 
   Future _initPath() async {
-    var directory;
+    Directory? directory;
     if (Platform.isAndroid) {
       directory = await getExternalStorageDirectory();
+      _savePath = "${directory!.path}/sw_info.xlsx";
     }
     if (Platform.isWindows) {
-      directory = await getApplicationDocumentsDirectory();
+      directory = await getDownloadsDirectory();
+      _savePath = p.join(directory?.path ?? '', "sw_info.xlsx");
     }
-    _savePath = "${directory!.path}/sw_info.xlsx";
     if (File(_savePath!).existsSync()) {
       await File(_savePath!).delete();
     }
