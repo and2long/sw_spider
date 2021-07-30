@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:excel/excel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -88,7 +89,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// 2. 并发请求多个模块中的所有页数据。
   void _start() async {
     await _initPath();
-    if (_savePath == null) {
+    if (kReleaseMode && _savePath == null) {
       ToastUtil.show('存储路径初始化失败，不支持该平台。');
       return;
     }
@@ -169,8 +170,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<List> _getTablePageData(String resourceUrl, int pageIndex) async {
-    Response response = await XHttp.instance
-        .get('$HOME_URL$resourceUrl', queryParameters: {'page': pageIndex});
+    Response response =
+        await XHttp.instance.get('$HOME_URL$resourceUrl?page=$pageIndex');
     if (response.statusCode == 200) {
       String html = response.data;
       String title = XPath.source(html)
