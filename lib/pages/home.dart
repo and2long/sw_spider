@@ -48,6 +48,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 } else {
                   ToastUtil.show('文件不存在，请先进行数据采集。');
                 }
+              } else {
+                ToastUtil.show('存储路径初始化失败。');
               }
             },
             icon: Icon(Icons.share),
@@ -225,12 +227,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future _initPath() async {
+    var directory;
     if (Platform.isAndroid) {
-      var directory = await getExternalStorageDirectory();
-      _savePath = "${directory!.path}/sw_info.xlsx";
-      if (File(_savePath!).existsSync()) {
-        await File(_savePath!).delete();
-      }
+      directory = await getExternalStorageDirectory();
+    }
+    if (Platform.isWindows) {
+      directory = await getApplicationDocumentsDirectory();
+    }
+    _savePath = "${directory!.path}/sw_info.xlsx";
+    if (File(_savePath!).existsSync()) {
+      await File(_savePath!).delete();
     }
   }
 }
