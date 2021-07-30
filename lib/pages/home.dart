@@ -40,23 +40,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         title: Text('水文信息采集'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              if (_savePath != null) {
-                if (File(_savePath!).existsSync()) {
-                  Share.shareFiles([_savePath!], text: '水情信息数据');
-                } else {
-                  ToastUtil.show('文件不存在，请先进行数据采集。');
-                }
-              } else {
-                ToastUtil.show('存储路径初始化失败。');
-              }
-            },
-            icon: Icon(Icons.share),
-            tooltip: '转发文件',
-          )
-        ],
+        actions: _savePath == null || !Platform.isAndroid
+            ? null
+            : [
+                IconButton(
+                  onPressed: _shareFile,
+                  icon: Icon(Icons.share),
+                  tooltip: '转发文件',
+                )
+              ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,6 +75,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ],
       ),
     );
+  }
+
+  void _shareFile() {
+    if (_savePath != null) {
+      if (File(_savePath!).existsSync()) {
+        Share.shareFiles([_savePath!], text: '水情信息数据');
+      } else {
+        ToastUtil.show('文件不存在，请先进行数据采集。');
+      }
+    }
   }
 
   /// 1. 获取首页中的模块地址
