@@ -27,9 +27,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   var excel = Excel.createExcel();
 
-  // 结果数据
-  Map<String, List<String>> _result = {};
-
   bool _running = false;
 
   // 日志数据
@@ -136,21 +133,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// 获取资源地址
   /// [/water/21052619M6gAf, /reservoir/21052619kKXHT]
   Future<List<String>> _getResourceUrls() async {
+    List<String> result = [];
     Response response = await XHttp.instance.get(HOME_URL);
     if (response.statusCode == 200) {
       String html = response.data;
-      List<String> result = XPath.source(html)
+      List<String> urls = XPath.source(html)
           .query('//*[@class="main3-2-dl"]/dl/dd/a/@href')
           .list();
-      List<String> titles = XPath.source(html)
-          .query('//*[@class="main3-2-dl"]/dl/dd/a/text()')
-          .list();
-      for (var value in titles) {
-        _result[value] = [];
-      }
-      return result;
+      result.addAll(urls);
     }
-    return [];
+    if (result.isNotEmpty) {
+      // 雨水信息
+      Response r1 = await XHttp.instance.get('$HOME_URL${result.first}');
+      if (r1.statusCode == 200) {
+        result = XPath.source(r1.data)
+            .query('//*[@class="menu fl"]//li/a/@href')
+            .list();
+      }
+    }
+    return result;
   }
 
   /// 获取总页数
