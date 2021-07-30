@@ -256,4 +256,8 @@ void main() {
       print(newList);
     });
   });
+
+  test('date', () {
+    print(DateTime.now().toString().substring(0, 10));
+  });
 }

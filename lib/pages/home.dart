@@ -231,14 +231,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future _initPath() async {
     Directory? directory;
+    String today = DateTime.now().toString().substring(0, 10);
+    String fileName = 'sw_info_$today.xlsx';
     if (Platform.isAndroid) {
       directory = await getExternalStorageDirectory();
-      _savePath = "${directory!.path}/sw_info.xlsx";
     }
     if (Platform.isWindows) {
       directory = await getDownloadsDirectory();
-      _savePath = p.join(directory?.path ?? '', "sw_info.xlsx");
     }
+    _savePath = p.join(directory?.path ?? '', fileName);
     if (File(_savePath!).existsSync()) {
       await File(_savePath!).delete();
     }
