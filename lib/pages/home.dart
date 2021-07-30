@@ -170,24 +170,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<List> _getTablePageData(String resourceUrl, int pageIndex) async {
-    Response response =
-        await XHttp.instance.get('$HOME_URL$resourceUrl?page=$pageIndex');
-    if (response.statusCode == 200) {
-      String html = response.data;
-      String title = XPath.source(html)
-          .query('//*[@class="erji-title"]/*[@class="fl"]/text()')
-          .get();
-      List<List<String>> result = [];
-      List<String> data = XPath.source(html)
-          .query(
-              '//*[@class="table table-bordered table-striped"]/tbody/tr/text()')
-          .list();
-      data.forEach((element) {
-        var list = element.split('\n');
-        var newList = list.map((e) => e.trim()).toList();
-        result.add(newList);
+    try {
+      Response response =
+          await XHttp.instance.get('$HOME_URL$resourceUrl?page=$pageIndex');
+      if (response.statusCode == 200) {
+        String html = response.data;
+        String title = XPath.source(html)
+            .query('//*[@class="erji-title"]/*[@class="fl"]/text()')
+            .get();
+        List<List<String>> result = [];
+        List<String> data = XPath.source(html)
+            .query(
+                '//*[@class="table table-bordered table-striped"]/tbody/tr/text()')
+            .list();
+        data.forEach((element) {
+          var list = element.split('\n');
+          var newList = list.map((e) => e.trim()).toList();
+          result.add(newList);
+        });
+        return [title, result];
+      }
+    } on DioError catch (e) {
+      print(e);
+      setState(() {
+        _items.add(
+            'error：${e.response?.statusCode} ${e.response?.requestOptions.path.replaceAll(HOME_URL, '')}');
       });
-      return [title, result];
     }
     return [];
   }
@@ -196,8 +204,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     int count = await _getTotalPages(resourceUrl);
     setState(() {
       _items.add('$resourceUrl: $count');
-      _items.addAll(
-          List.generate(count, (index) => '$resourceUrl?page=${index + 1}'));
     });
     List data = await Future.wait(List.generate(
         count, (index) => _getTablePageData(resourceUrl, index + 1)));
