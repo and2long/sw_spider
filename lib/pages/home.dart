@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       print(e);
       setState(() {
         _items.add(
-            'error：${e.response?.statusCode} ${e.response?.requestOptions.path.replaceAll(HOME_URL, '')}');
+            'error:${e.response?.statusCode} ${e.response?.requestOptions.path.replaceAll(HOME_URL, '')}');
       });
     }
     return [];
