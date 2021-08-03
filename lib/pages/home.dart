@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 Platform.isAndroid
             ? [
                 IconButton(
-                  onPressed: () => OpenFile.open(_savePath),
+                  onPressed: () => OpenFile.open(_savePath!),
                   icon: Icon(Icons.open_in_new),
                   tooltip: '打开文件',
                 ),
