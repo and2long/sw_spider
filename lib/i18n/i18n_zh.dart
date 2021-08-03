@@ -1,5 +1,5 @@
 const Map<String, Object> I18N_ZH = {
-  "app_name": "SpO2App",
+  "app_name": "水文信息采集工具",
 
   "publish": "发布",
   "save": "保存",
